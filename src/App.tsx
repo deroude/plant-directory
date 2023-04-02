@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+
+import { Container, Paper } from '@mui/material';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
 import './App.css';
 
+const locations = [
+  { id: 'forest', label: 'Pădure' },
+  { id: 'plain', label: 'Câmpie' },
+  { id: 'riverbed', label: 'Luncă' }
+]
+
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+
+  const [location, setLocation] = useState()
+
+  const handleLocationChange = (event:any) => {
+    setLocation(event.target.value);
+  };
+
+  return <Container maxWidth="sm" className="main">
+    <Paper className='item'>
+      <FormControl fullWidth>
+        <InputLabel>Locație</InputLabel>
+        <Select
+          value={location}
+          label="Locație"
+          onChange={handleLocationChange}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+          {locations.map(lo => <MenuItem value={lo.id} key={lo.id}>{lo.label}</MenuItem>)}
+        </Select>
+      </FormControl>
+    </Paper>
+  </Container>
 }
 
 export default App;
