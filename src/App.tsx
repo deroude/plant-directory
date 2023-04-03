@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { CircularProgress, Container, ImageList, ImageListItem, Input, Paper, Typography } from '@mui/material';
+import { CircularProgress, Container, ImageList, ImageListItem, ImageListItemBar, Input, Paper, Typography } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -22,7 +22,7 @@ function App() {
 
   useEffect(() => {
     setLoading(true);
-    getFilters().then(filters=>{
+    getFilters().then(filters => {
       setFilters(filters);
       setLoading(false);
     });
@@ -31,7 +31,7 @@ function App() {
   useEffect(() => {
     if (Object.keys(selected).length > 1) {
       setLoading(true);
-      search(selected).then(results=>{
+      search(selected).then(results => {
         setResults(results);
         setLoading(false);
       })
@@ -64,8 +64,34 @@ function App() {
   )
 
   const renderResults = () => <ImageList>
-    {results.map(r => <ImageListItem key={r.id}></ImageListItem>)}
+    {results.map(r => <ImageListItem key={r.id}>
+      <img
+        src={r.photoUrl}
+        alt={r.label}
+        loading="lazy"
+      />
+      <ImageListItemBar
+        title={r.label}
+        subtitle={r.id}
+        position="below"
+      />
+    </ImageListItem>)}
   </ImageList>
+
+  /**
+   * <ImageListItem key={item.img}>
+            <img
+              src={`${item.img}?w=248&fit=crop&auto=format`}
+              srcSet={`${item.img}?w=248&fit=crop&auto=format&dpr=2 2x`}
+              alt={item.title}
+              loading="lazy"
+            />
+            <ImageListItemBar
+              title={item.title}
+              subtitle={<span>by: {item.author}</span>}
+              position="below"
+            />
+   */
 
   return <Container maxWidth="sm" className="main">
     <Typography component='h1' className='title'>
