@@ -1,40 +1,79 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Container, Paper } from '@mui/material';
+import { CircularProgress, Container, ImageList, ImageListItem, Input, Paper, Typography } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 import './App.css';
-
-const locations = [
-  { id: 'forest', label: 'Pădure' },
-  { id: 'plain', label: 'Câmpie' },
-  { id: 'riverbed', label: 'Luncă' }
-]
+import { Filter, getFilters } from './services/filter.service';
+import { Result, search } from './services/search.service';
 
 function App() {
 
-  const [location, setLocation] = useState()
+  const [filters, setFilters] = useState<Filter[]>([]);
 
-  const handleLocationChange = (event:any) => {
-    setLocation(event.target.value);
-  };
+  const [results, setResults] = useState<Result[]>([]);
 
-  return <Container maxWidth="sm" className="main">
-    <Paper className='item'>
+  const [selected, setSelected] = useState<{ [key: string]: string }>({});
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getFilters().then(filters=>{
+      setFilters(filters);
+      setLoading(false);
+    });
+  }, [])
+
+  useEffect(() => {
+    if (Object.keys(selected).length > 1) {
+      setLoading(true);
+      search(selected).then(results=>{
+        setResults(results);
+        setLoading(false);
+      })
+    }
+  }, [selected])
+
+  const handleFilterChange = (filterId: string) => {
+    return (event: any) => {
+      const updated = { ...selected };
+      updated[filterId] = event.target.value;
+      setSelected(updated);
+    }
+  }
+
+  const renderFilters = () => filters.map(
+    f => <Paper className='item' key={f.id}>
       <FormControl fullWidth>
-        <InputLabel>Locație</InputLabel>
-        <Select
-          value={location}
-          label="Locație"
-          onChange={handleLocationChange}
+        <InputLabel>{f.label}</InputLabel>
+        {f.options ? <Select
+          value={selected[f.id] || ''}
+          label={f.label}
+          onChange={handleFilterChange(f.id)}
         >
-          {locations.map(lo => <MenuItem value={lo.id} key={lo.id}>{lo.label}</MenuItem>)}
-        </Select>
+          {f.options.map(fo => <MenuItem value={fo.id} key={`${f.id}-${fo.id}`}>{fo.label}</MenuItem>)}
+        </Select> :
+          <Input type='text' onInput={handleFilterChange(f.id)}></Input>
+        }
       </FormControl>
     </Paper>
+  )
+
+  const renderResults = () => <ImageList>
+    {results.map(r => <ImageListItem key={r.id}></ImageListItem>)}
+  </ImageList>
+
+  return <Container maxWidth="sm" className="main">
+    <Typography component='h1' className='title'>
+      Lumea verde
+    </Typography>
+    {renderFilters()}
+    {results.length ? renderResults() : <></>}
+    {loading && <CircularProgress className='progress' size={60}></CircularProgress>}
   </Container>
 }
 
