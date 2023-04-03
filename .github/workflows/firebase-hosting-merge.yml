@@ -14,6 +14,12 @@ jobs:
       PUBLIC_URL: https://lumea-verde.web.app
     steps:
       - uses: actions/checkout@v3
+      - name: create firebase config
+        run: |
+            echo $FIREBASE_CONFIG >> src/firebase.config.ts
+        shell: bash
+        env:
+          FIREBASE_CONFIG : ${{secrets.FIREBASE_CONFIG}}
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

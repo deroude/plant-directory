@@ -1,3 +1,5 @@
+import { collection, getDocs } from "firebase/firestore"; 
+import { db } from "./firestore.service";
 export interface FilterOption {
     id: string;
     label: string;
@@ -9,19 +11,7 @@ export interface Filter {
     options?: FilterOption[]
 }
 
-export const getFilters: () => Promise<Filter[]> = async () =>
-    Promise.resolve([
-        {
-            id: "location",
-            label: "Locație",
-            options: [
-                { id: 'forest', label: 'Pădure' },
-                { id: 'plain', label: 'Câmpie' },
-                { id: 'riverbed', label: 'Luncă' }
-            ]
-        },
-        {
-            id: 'name',
-            label: 'Denumire'
-        }
-    ])
+export const getFilters: () => Promise<Filter[]> = async () => {
+    const filters = await getDocs(collection(db, "filter-definition"));
+    return Promise.resolve(filters.docs.map(d=>({id:d.id, ...d.data()} as Filter)))
+}
