@@ -8,7 +8,13 @@ export interface FilterOption {
 export interface Filter {
     id: string;
     label: string;
+    type: 'include'|'equals'|'like';
     options?: FilterOption[]
+}
+
+export interface FilterSelection {
+    filter: Filter;
+    value: string;
 }
 
 export const getFilters: () => Promise<Filter[]> = async () => {

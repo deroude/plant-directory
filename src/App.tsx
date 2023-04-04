@@ -9,19 +9,25 @@ import Select from '@mui/material/Select';
 import './App.css';
 import { Filter, getFilters } from './services/filter.service';
 import { Result, search } from './services/search.service';
+import { sync } from './services/sync.service';
 
 function App() {
+
+  const getSeason = ():string => {
+    return 'spring';
+  }
 
   const [filters, setFilters] = useState<Filter[]>([]);
 
   const [results, setResults] = useState<Result[]>([]);
 
-  const [selected, setSelected] = useState<{ [key: string]: string }>({});
+  const [selected, setSelected] = useState<{ [key: string]: string }>({ season: getSeason() });
 
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
+    sync();
     getFilters().then(filters => {
       setFilters(filters);
       setLoading(false);
@@ -31,12 +37,16 @@ function App() {
   useEffect(() => {
     if (Object.keys(selected).length > 1) {
       setLoading(true);
-      search(selected).then(results => {
-        setResults(results);
-        setLoading(false);
-      })
+      search(
+        Object.entries(selected)
+          .map(s => ({ filter: filters.find(f => f.id === s[0])!, value: s[1] }))
+      )
+        .then(results => {
+          setResults(results);
+          setLoading(false);
+        })
     }
-  }, [selected])
+  }, [selected, filters])
 
   const handleFilterChange = (filterId: string) => {
     return (event: any) => {
