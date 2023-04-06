@@ -7,28 +7,26 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 import './App.css';
-import { Filter, getFilters } from './services/filter.service';
-import { Result, search } from './services/search.service';
-import { sync } from './services/sync.service';
+import { sync, search, Result, Filter, getFilters } from './services/local-db.service';
 
 function App() {
 
-  const getSeason = ():string => {
-    return 'spring';
-  }
 
   const [filters, setFilters] = useState<Filter[]>([]);
 
   const [results, setResults] = useState<Result[]>([]);
 
-  const [selected, setSelected] = useState<{ [key: string]: string }>({ season: getSeason() });
+  const [selected, setSelected] = useState<{ [key: string]: string }>({ });
 
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
-    sync();
-    getFilters().then(filters => {
+    const startUp = async (): Promise<Filter[]> => {
+      await sync();
+      return getFilters();
+    }
+    startUp().then(filters => {
       setFilters(filters);
       setLoading(false);
     });
